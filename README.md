@@ -1,225 +1,214 @@
-<h1 align="center">
-  <img src="labelme/icons/icon-256.png" width="200" height="200"><br/>labelme
-</h1>
-
-<h4 align="center">
-  Image Polygonal Annotation with Python
-</h4>
+# labelme - Enhanced Edition
 
 <div align="center">
-  <a href="https://pypi.python.org/pypi/labelme"><img src="https://img.shields.io/pypi/v/labelme.svg"></a>
-  <a href="https://github.com/wkentaro/labelme/actions"><img src="https://github.com/wkentaro/labelme/actions/workflows/ci.yml/badge.svg?branch=main&event=push"></a>
-  <a href="https://discord.com/invite/uAjxGcJm83"><img src="https://dcbadge.limes.pink/api/server/uAjxGcJm83?style=flat"></a>
-</div>
-
-<br/>
-
-<div align="center">
-  <img src="examples/instance_segmentation/.readme/annotation.jpg" width="70%">
-</div>
-
-## Description
-
-Labelme is a graphical image annotation tool inspired by <http://labelme.csail.mit.edu>.  
-It is written in Python and uses Qt for its graphical interface.
-
-## ✨ Key Features
-
-- **Multiple annotation types**: polygon, rectangle, circle, line, and point
-- **Image classification**: Flag-based annotation for classification tasks
-- **Video annotation**: Frame-by-frame annotation support
-- **AI-assisted annotation**: Point-to-polygon/mask with SAM/EfficientSAM, text-to-bbox with YOLO-World
-- **Advanced polygon editing**: 
-  - Add multiple points to edges (`Ctrl+M`)
-  - Merge polygons with geometric union (`Ctrl+Shift+M`)
-- **Dataset export**: VOC and COCO format support
-- **Multilingual**: 15+ languages supported
-- **Customizable**: Predefined labels, auto-saving, label validation, and more
-
-<details>
-<summary><b>View Screenshots</b></summary>
-
-<img src="examples/instance_segmentation/data_dataset_voc/JPEGImages/2011_000006.jpg" width="19%"> <img src="examples/instance_segmentation/data_dataset_voc/SegmentationClass/2011_000006.png" width="19%"> <img src="examples/instance_segmentation/data_dataset_voc/SegmentationClassVisualization/2011_000006.jpg" width="19%"> <img src="examples/instance_segmentation/data_dataset_voc/SegmentationObject/2011_000006.png" width="19%"> <img src="examples/instance_segmentation/data_dataset_voc/SegmentationObjectVisualization/2011_000006.jpg" width="19%">
-
-*Instance segmentation with VOC dataset format*
-
-<img src="examples/semantic_segmentation/.readme/annotation.jpg" width="30%"> <img src="examples/bbox_detection/.readme/annotation.jpg" width="30%"> <img src="examples/classification/.readme/annotation_cat.jpg" width="35%">
-
-*Semantic segmentation, bounding box detection, and classification*
-
-</details>
-
-## 🚀 Installation
-
-### Option 1: pip (Recommended)
-
-```bash
-pip install labelme
-
-# Or install latest from GitHub:
-pip install git+https://github.com/wkentaro/labelme.git
-```
-
-**Note**: For detailed installation instructions, see [labelme.io/docs/install-labelme-terminal](https://www.labelme.io/docs/install-labelme-terminal)
-
-### Option 2: Standalone Executable
-
-Download the standalone app (no Python required) from [labelme.io/docs/install-labelme-app](https://www.labelme.io/docs/install-labelme-app).
-
-### Option 3: Package Manager
-
-Some Linux distributions provide labelme via package managers:
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/labelme.svg)](https://repology.org/project/labelme/versions)
-
-## 📖 Usage
-
-### Basic Usage
-
-```bash
-labelme                                # Launch GUI
-labelme image.jpg                      # Annotate specific image
-labelme image.jpg -O output.json       # Save and close automatically
-labelme image_folder/                  # Annotate all images in folder
-labelme --labels labels.txt            # Use predefined labels
-```
-
-### Quick Start
-
-1. **Launch**: Run `labelme` to open the GUI
-2. **Open image**: File → Open or `Ctrl+O`
-3. **Create annotation**: 
-   - Polygon: `Ctrl+N`, then click to draw points
-   - Rectangle: `Ctrl+R`, then drag
-   - AI-assisted: Use toolbar icons for SAM/YOLO-World
-4. **Edit annotations**: 
-   - Edit mode: `Ctrl+J`
-   - Add points to edge: Hover over edge, press `Ctrl+M`
-   - Merge polygons: Select multiple (`Ctrl+Click`), press `Ctrl+Shift+M`
-5. **Save**: `Ctrl+S` to save as JSON
-
-### Advanced Features
-
-| Feature | Shortcut | Description |
-|---------|----------|-------------|
-| Add Multiple Points | `Ctrl+M` | Add N evenly-spaced points to polygon edge |
-| Merge Polygons | `Ctrl+Shift+M` | Combine multiple polygons using geometric union |
-| Remove Point | `Backspace` | Remove selected vertex from polygon |
-| Edit Label | `Ctrl+E` | Change shape label |
-| Duplicate | `Ctrl+D` | Duplicate selected shape |
-
-For complete documentation, see [QUICK_START.md](QUICK_START.md).
-
-## 📦 Examples
-
-The `examples/` directory contains complete workflows for:
-
-- [Tutorial](examples/tutorial) - Basic polygon annotation
-- [Classification](examples/classification) - Image classification with flags
-- [Bounding Box Detection](examples/bbox_detection) - Object detection
-- [Semantic Segmentation](examples/semantic_segmentation) - Pixel-wise segmentation
-- [Instance Segmentation](examples/instance_segmentation) - Instance-aware segmentation
-- [Video Annotation](examples/video_annotation) - Frame-by-frame video labeling
-
-Each example includes sample data, scripts, and detailed README files.
-
-## 🔧 Configuration
-
-Labelme creates a config file at `~/.labelmerc` on first run. Customize:
-
-```yaml
-# Auto-save annotations
-auto_save: true
-
-# Predefined labels
-labels:
-  - person
-  - car
-  - bicycle
-
-# Custom shortcuts
-shortcuts:
-  add_multiple_points: Ctrl+M
-  merge_polygons: Ctrl+Shift+M
+  <img src="labelme/icons/icon-256.png" width="200" height="200">
   
-# Default AI model
-ai:
-  default: 'Sam2 (balanced)'
-```
-
-See [`default_config.yaml`](labelme/config/default_config.yaml) for all options.
-
-## 🆕 What's New in This Fork
-
-This version includes enhanced polygon editing capabilities:
-
-### 1. **Multiple Point Addition** (`Ctrl+M`)
-Add multiple evenly-spaced points to polygon edges for detailed boundary refinement.
-
-**Usage**: Hover over edge → Press `Ctrl+M` → Enter number of points → Points distributed evenly
-
-### 2. **Polygon Merge** (`Ctrl+Shift+M`)
-Merge multiple polygons using geometric union operations with intelligent handling of disconnected regions.
-
-**Usage**: Select polygons (Ctrl+Click) → Press `Ctrl+Shift+M` → Polygons merged with same label
-
-See [FEATURES_SUMMARY.md](FEATURES_SUMMARY.md) for detailed documentation.
-
-## 🛠️ Development
-
-```bash
-# Clone repository
-git clone https://github.com/wkentaro/labelme.git
-cd labelme
-
-# Install in development mode
-pip install -e .
-
-# Run tests
-pytest
-
-# Run with specific language
-LANG=ja_JP.UTF-8 labelme
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the [GPLv3 License](LICENSE).
-
-## 🙏 Acknowledgements
-
-- Original labelme: <http://labelme.csail.mit.edu>
-- This repo is a fork of [mpitid/pylabelme](https://github.com/mpitid/pylabelme)
-- AI features powered by [OSAM](https://github.com/wkentaro/osam)
-
-## 📚 Citation
-
-If you use this software in your research, please cite:
-
-```bibtex
-@misc{labelme2024,
-  author = {Kentaro Wada and Contributors},
-  title = {labelme: Image Polygonal Annotation with Python},
-  year = {2024},
-  publisher = {GitHub},
-  howpublished = {\url{https://github.com/wkentaro/labelme}},
-}
-```
-
-See [CITATION.cff](CITATION.cff) for complete citation information.
+  ### Image Annotation Tool with Advanced Polygon Editing
+  
+  [![PyPI](https://img.shields.io/pypi/v/labelme.svg)](https://pypi.python.org/pypi/labelme)
+  [![CI](https://github.com/wkentaro/labelme/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/wkentaro/labelme/actions)
+  
+  **Enhanced fork of [wkentaro/labelme](https://github.com/wkentaro/labelme) with productivity features**
+</div>
 
 ---
 
-<div align="center">
-  <b>⭐ Star this repo if you find it useful!</b>
-</div>
+## 🎯 What's New in This Fork
+
+This enhanced version adds powerful polygon editing features and improved defaults to speed up your annotation workflow:
+
+### ✨ New Features
+
+#### 1. **Multiple Point Addition** (`Ctrl+M`)
+Quickly refine polygon boundaries by adding multiple evenly-spaced points along edges.
+
+- Hover over any polygon edge in edit mode
+- Press `Ctrl+M` and enter number of points (1-100)
+- Points are automatically distributed evenly
+- Perfect for curved edges or complex boundaries
+
+**Example:** Add 10 points to a curved car windshield edge in one action instead of clicking 10 times.
+
+#### 2. **Polygon Merge** (`Ctrl+Shift+M`)
+Merge multiple polygons into one or batch-apply labels to disconnected objects.
+
+- Select 2+ polygons (hold `Ctrl` while clicking)
+- Press `Ctrl+Shift+M` to merge
+- Smart handling:
+  - **Connected/overlapping** → Single merged polygon
+  - **Disconnected objects** → Multiple polygons with same label
+  - **Mixed** → Intelligent separation based on connectivity
+
+**Example:** Annotate 20 cars by drawing rough boxes, select all, merge once - all labeled "car" instantly.
+
+#### 3. **Dark Mode** (View → Dark Mode)
+Eye-friendly dark theme inspired by VS Code.
+
+- Toggle instantly via View menu
+- Persistent setting saved in config
+- Reduces eye strain during long sessions
+- Professional color scheme
+
+#### 4. **Improved Default Settings**
+Better defaults for faster annotation workflow:
+
+| Setting | Old Default | New Default | Why? |
+|---------|-------------|-------------|------|
+| `auto_save` | `false` | `true` | Never lose work |
+| `store_data` | `true` | `false` | Smaller JSON files |
+| `keep_prev_brightness_contrast` | `false` | `true` | Consistent visuals |
+| `dark_mode` | N/A | `true` | Eye comfort |
+| `canvas.fill_drawing` | `true` | `false` | See through shapes |
+| `canvas.num_backups` | 10 | 20 | More undo history |
+
+#### 5. **Better Keyboard Shortcuts**
+More intuitive shortcuts that don't conflict:
+
+| Action | Old Shortcut | New Shortcut |
+|--------|--------------|--------------|
+| Create Polygon | `Ctrl+N` | `Ctrl+Shift+C` |
+| Create Rectangle | `Ctrl+R` | `Ctrl+Shift+X` |
+| Edit Polygon | `Ctrl+J` | `Ctrl+Shift+V` |
+
+---
+
+## 📦 Installation
+
+```bash
+# Clone this enhanced version
+git clone https://github.com/YOUR_USERNAME/labelme.git
+cd labelme
+
+# Install with pip
+pip install -e .
+
+# Or use uv (faster)
+uv pip install -e .
+```
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# Launch labelme
+labelme
+
+# Enable dark mode (if not already on)
+View → Dark Mode
+
+# Try the new features:
+# 1. Draw a polygon
+# 2. Press Ctrl+Shift+V to enter edit mode
+# 3. Hover over an edge and press Ctrl+M
+# 4. Enter "5" to add 5 points
+# 5. Adjust the points as needed
+```
+
+### New Feature Quick Reference
+
+| Feature | Shortcut | Usage |
+|---------|----------|-------|
+| **Add Multiple Points** | `Ctrl+M` | Edit mode → Hover edge → Ctrl+M → Enter count |
+| **Merge Polygons** | `Ctrl+Shift+M` | Select multiple → Ctrl+Shift+M |
+| **Dark Mode** | View menu | View → Dark Mode (toggles instantly) |
+| **Edit Mode** | `Ctrl+Shift+V` | Enter polygon editing mode |
+
+---
+
+## 📚 Documentation
+
+- **New Features Guide**: [docs/NEW_FEATURES.md](docs/NEW_FEATURES.md)
+- **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Original Documentation**: See [wkentaro/labelme](https://github.com/wkentaro/labelme) for:
+  - Basic usage and examples
+  - Export formats (VOC, COCO)
+  - AI-assisted annotation
+  - Command-line tools
+  - Video annotation
+  - Classification/segmentation workflows
+
+---
+
+## 🎬 Examples
+
+### Polygon Refinement Workflow
+```
+1. Draw rough polygon around object
+2. Ctrl+Shift+V (edit mode)
+3. Hover over curved edge
+4. Ctrl+M → Enter "8" → OK
+5. Adjust 8 new points to match boundary perfectly
+```
+
+### Batch Labeling Workflow
+```
+1. Draw boxes around 15 cars (quick rough boxes)
+2. Ctrl+Click each box to select all
+3. Ctrl+Shift+M (merge)
+4. Result: 15 separate polygons all labeled "car"
+```
+
+---
+
+## 🔧 Configuration
+
+Enhanced defaults in `~/.labelmerc`:
+
+```yaml
+# New/modified defaults
+auto_save: true
+dark_mode: true
+store_data: false
+keep_prev_brightness_contrast: true
+
+# New features config
+default_num_points_to_add: 1
+
+shortcuts:
+  add_multiple_points: Ctrl+M
+  merge_polygons: Ctrl+Shift+M
+  create_polygon: Ctrl+Shift+C
+  create_rectangle: Ctrl+Shift+X
+  edit_polygon: Ctrl+Shift+V
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- Development setup
+- Code style guidelines
+- Testing procedures
+- Feature implementation details
+
+---
+
+## 📄 License
+
+GPL-3.0-only - Same as original [wkentaro/labelme](https://github.com/wkentaro/labelme)
+
+---
+
+## 🙏 Acknowledgments
+
+This is an enhanced fork of [wkentaro/labelme](https://github.com/wkentaro/labelme) by Kentaro Wada.
+
+**Original repo**: <https://github.com/wkentaro/labelme>  
+**Original author**: [Kentaro Wada](https://github.com/wkentaro)
+
+New features in this fork:
+- Multiple point addition
+- Polygon merge
+- Dark mode
+- Improved defaults
+- Better keyboard shortcuts
+
+---
+
+## ⭐ Star History
+
+If you find these enhancements useful, please star this repo!
+
+For the original labelme and its extensive documentation, visit the [official repository](https://github.com/wkentaro/labelme).

@@ -48,6 +48,7 @@ from labelme.widgets import ToolBar
 from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 from labelme.widgets import download_ai_model
+from labelme.widgets import get_dark_stylesheet
 
 from . import utils
 
@@ -627,6 +628,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tr("Adjust brightness and contrast"),
             enabled=False,
         )
+        toggleDarkMode = action(
+            text=self.tr("&Dark Mode"),
+            slot=self.toggleDarkMode,
+            shortcut=None,
+            icon=None,
+            tip=self.tr("Toggle dark mode"),
+            checkable=True,
+            checked=self._config["dark_mode"],
+        )
         self._zoom_mode = _ZoomMode.FIT_WINDOW
         fitWindow.setChecked(Qt.Checked)
         self.scalers = {
@@ -735,6 +745,7 @@ class MainWindow(QtWidgets.QMainWindow):
             brightnessContrast=brightnessContrast,
             openNextImg=openNextImg,
             openPrevImg=openPrevImg,
+            toggleDarkMode=toggleDarkMode,
         )
         self.on_shapes_present_actions = (saveAs, hideAll, showAll, toggleAll)
 
@@ -861,6 +872,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 None,
                 brightnessContrast,
                 self.actions.toggle_keep_prev_brightness_contrast,
+                None,
+                toggleDarkMode,
             ),
         )
 
@@ -998,6 +1011,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.zoomWidget.valueChanged.connect(self._paint_canvas)
 
         self.populateModeActions()
+
+        # Apply dark mode if enabled in config
+        if self._config["dark_mode"]:
+            QtWidgets.QApplication.instance().setStyleSheet(get_dark_stylesheet())
 
     def _load_config(
         self, config_file: Path | None, config_overrides: dict | None
@@ -2264,6 +2281,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def toggleKeepPrevMode(self):
         self._config["keep_prev"] = not self._config["keep_prev"]
+
+    def toggleDarkMode(self):
+        """Toggle dark mode on/off."""
+        self._config["dark_mode"] = self.actions.toggleDarkMode.isChecked()
+        if self._config["dark_mode"]:
+            QtWidgets.QApplication.instance().setStyleSheet(get_dark_stylesheet())
+        else:
+            QtWidgets.QApplication.instance().setStyleSheet("")
+        self.show_status_message(
+            self.tr("Dark mode {}").format(
+                self.tr("enabled") if self._config["dark_mode"] else self.tr("disabled")
+            )
+        )
 
     def removeSelectedPoint(self):
         self.canvas.removeSelectedPoint()
