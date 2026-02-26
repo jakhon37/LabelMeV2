@@ -1847,6 +1847,19 @@ class MainWindow(QtWidgets.QMainWindow):
             logger.warning("filename is None, cannot set brightness/contrast")
             return
 
+        # On initial load, skip if no previous brightness/contrast to apply
+        if is_initial_load:
+            brightness: int | None = None
+            contrast: int | None = None
+            prev_filename: str = self.recentFiles[0] if self.recentFiles else ""
+            if self._config["keep_prev_brightness_contrast"] and prev_filename:
+                brightness, contrast = self._brightness_contrast_values.get(
+                    prev_filename, (None, None)
+                )
+            # If no previous values to apply, skip entirely on initial load
+            if brightness is None and contrast is None:
+                return
+        
         # Load imageData if needed for brightness/contrast
         if self.imageData is None:
             logger.info("Loading image data for brightness/contrast adjustment")

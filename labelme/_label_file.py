@@ -181,17 +181,23 @@ class LabelFile:
             ext = osp.splitext(imagePath)[1].lower()
             is_tiff = ext in [".tif", ".tiff"]
             
-            # For TIFF files that exist, skip loading embedded imageData (major speedup!)
-            if data["imageData"] is not None and not (image_exists and is_tiff):
-                imageData = base64.b64decode(data["imageData"])
-                logger.debug(f"Loaded imageData from JSON ({len(imageData)} bytes)")
+            # For TIFF files that exist on disk, skip loading embedded imageData (major speedup!)
+            # For other formats, still load from JSON if available
+            if data["imageData"] is not None:
+                if image_exists and is_tiff:
+                    # TIFF file exists - will be loaded directly later (fast path)
+                    logger.info(f"Skipping imageData from JSON - will load {imagePath} directly")
+                    imageData = None
+                else:
+                    # Load from JSON for non-TIFF or if file doesn't exist
+                    imageData = base64.b64decode(data["imageData"])
+                    logger.debug(f"Loaded imageData from JSON ({len(imageData)} bytes)")
             elif image_exists:
-                # Image file exists - will be loaded directly later (fast path)
-                logger.info(f"Skipping imageData from JSON - will load {imagePath} directly")
-                imageData = None
-            else:
-                # Fallback: load from file referenced in JSON
+                # No imageData in JSON, load from file
                 imageData = self.load_image_file(image_file_path)
+            else:
+                # No imageData and file doesn't exist
+                raise LabelFileError(f"Image file not found: {image_file_path}")
             flags = data.get("flags") or {}
             
             # Skip image validation if imageData is None (fast path)
