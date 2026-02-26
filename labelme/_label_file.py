@@ -175,31 +175,25 @@ class LabelFile:
             # Normalize Windows-style backslash paths to POSIX forward slashes
             imagePath = PureWindowsPath(data["imagePath"]).as_posix()
 
-            # Performance optimization: Skip loading imageData from JSON if file exists
+            # Performance optimization: Skip loading imageData and load directly from file
             image_file_path = osp.join(osp.dirname(filename), imagePath)
             image_exists = osp.exists(image_file_path)
-            ext = osp.splitext(imagePath)[1].lower()
-            is_tiff = ext in [".tif", ".tiff"]
             
-            # For TIFF files that exist on disk, skip loading (major speedup!)
-            # For other formats, still load from JSON if available
+            # For all image files that exist on disk, skip loading imageData (major speedup!)
+            # Let QImageReader handle all formats efficiently with downsampling
             if data["imageData"] is not None:
-                if image_exists and is_tiff:
-                    # TIFF file exists - will be loaded directly later (fast path)
+                if image_exists:
+                    # Image file exists - will be loaded directly later (fast path)
                     logger.info(f"Skipping embedded imageData from JSON - will load {imagePath} directly")
                     imageData = None
                 else:
-                    # Load from JSON for non-TIFF or if file doesn't exist
+                    # No file on disk, load from JSON
                     imageData = base64.b64decode(data["imageData"])
                     logger.debug(f"Loaded imageData from JSON ({len(imageData)} bytes)")
-            elif image_exists and is_tiff:
-                # No imageData in JSON and it's a TIFF - use fast path
-                logger.info(f"No imageData in JSON - will load TIFF {imagePath} directly")
-                imageData = None
             elif image_exists:
-                # No imageData in JSON, non-TIFF file - load it
-                logger.info(f"Loading {imagePath} via PIL (no imageData in JSON)")
-                imageData = self.load_image_file(image_file_path)
+                # No imageData in JSON - use direct file loading (fast path)
+                logger.info(f"No imageData in JSON - will load {imagePath} directly")
+                imageData = None
             else:
                 # No imageData and file doesn't exist
                 raise LabelFileError(f"Image file not found: {image_file_path}")

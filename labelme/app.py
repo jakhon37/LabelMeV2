@@ -1989,9 +1989,9 @@ class MainWindow(QtWidgets.QMainWindow):
             t3 = time.time()
             logger.info(f"⏱️ Cache retrieval: {(t3-t2)*1000:.0f}ms")
         else:
-            # Fast path for direct file loading (TIFF)
+            # Fast path for direct file loading (all formats)
             if self.imageData is None:
-                logger.info(f"Loading TIFF directly with QImageReader")
+                logger.info(f"Loading image directly with QImageReader")
                 image = self._load_image_directly_from_file(self.imagePath)
             # Standard path: Use QImageReader for efficient loading from bytes
             elif self._config["performance"]["auto_downsample_large_images"]:
@@ -2156,7 +2156,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return QtGui.QImage.fromData(image_data)
     
     def _load_image_directly_from_file(self, filename: str) -> QtGui.QImage:
-        """Load image directly from file without PIL conversion (fast path for TIFF)"""
+        """Load image directly from file without intermediate conversion (fast path for all formats)"""
         image_reader = QtGui.QImageReader(filename)
         
         size = image_reader.size()
@@ -2180,7 +2180,7 @@ class MainWindow(QtWidgets.QMainWindow):
             image_reader.setScaledSize(scaled_size)
             
             logger.info(
-                f"Loading TIFF {size.width()}x{size.height()} "
+                f"Loading image {size.width()}x{size.height()} "
                 f"directly at {scaled_size.width()}x{scaled_size.height()} "
                 f"(factor={factor}) from file!"
             )

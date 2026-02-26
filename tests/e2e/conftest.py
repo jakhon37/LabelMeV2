@@ -29,6 +29,9 @@ def show_window_and_wait_for_imagedata(
 
     def check_imageData() -> None:
         assert hasattr(win, "imageData")
-        assert win.imageData is not None
+        # Fast path optimization: imageData can be None if loaded directly
+        # Check if image is loaded successfully instead
+        assert win.imagePath is not None
+        assert win.canvas.pixmap is not None
 
     qtbot.waitUntil(check_imageData)
