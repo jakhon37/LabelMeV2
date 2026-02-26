@@ -3,11 +3,16 @@ requires = ["hatchling>=1.20.0", "hatch-vcs", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 [project]
-name = "labelme"
-description = "Image Polygonal Annotation with Python"
+name = "labelme-enhanced"
+description = "Image Polygonal Annotation with Python - Enhanced Edition with Performance Optimizations"
 license = { text = "GPL-3.0-only" }
 requires-python = ">=3.10"
-authors = [{ name = "Kentaro Wada", email = "www.kentaro.wada@gmail.com" }]
+authors = [
+    { name = "Jakhongir Nodirov", email = "jakhon37@gmail.com" },
+    { name = "Kentaro Wada", email = "www.kentaro.wada@gmail.com" }
+]
+maintainers = [{ name = "Jakhongir Nodirov", email = "jakhon37@gmail.com" }]
+keywords = ["Image Annotation", "Machine Learning", "Deep Learning", "Computer Vision", "Labeling Tool"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
@@ -36,6 +41,13 @@ dependencies = [
   "scikit-image",
 ]
 dynamic = ["readme", "version"]
+
+[project.urls]
+Homepage = "https://github.com/jakhon37/LabelMeV2"
+Repository = "https://github.com/jakhon37/LabelMeV2"
+Issues = "https://github.com/jakhon37/LabelMeV2/issues"
+Changelog = "https://github.com/jakhon37/LabelMeV2/blob/main/CHANGELOG.md"
+"Original Project" = "https://github.com/wkentaro/labelme"
 
 [tool.hatch.metadata.hooks.fancy-pypi-readme]
 content-type = "text/markdown"
