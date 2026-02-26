@@ -65,6 +65,9 @@ fit_to_content:
 # canvas
 epsilon: 10.0
 default_num_points_to_add: 1
+# Zoom settings for better control
+zoom_increment: 1.1  # Multiplier for zoom in/out (1.1 = 10% steps)
+max_zoom: 5000  # Maximum zoom percentage (5000% = 50x)
 canvas:
   fill_drawing: false
   # None: do nothing

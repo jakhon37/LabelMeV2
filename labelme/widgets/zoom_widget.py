@@ -4,10 +4,11 @@ from PyQt5 import QtWidgets
 
 
 class ZoomWidget(QtWidgets.QSpinBox):
-    def __init__(self, value=100):
+    def __init__(self, value=100, max_zoom=5000):
         super().__init__()
         self.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
-        self.setRange(1, 1000)
+        # Configurable max zoom for tiny defect annotation (default 5000% = 50x)
+        self.setRange(1, max_zoom)
         self.setSuffix(" %")
         self.setValue(value)
         self.setToolTip("Zoom Level")

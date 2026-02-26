@@ -23,7 +23,17 @@ This enhanced version adds powerful polygon editing features and improved defaul
 
 ### ✨ New Features
 
-#### 1. **Multiple Point Addition** (`Ctrl+M`)
+#### 1. **Enhanced Zoom (Up to 5000%)**
+Maximum zoom increased from 1000% to 5000% (50x magnification) for tiny defect annotation.
+
+- Configurable maximum zoom level
+- Adjustable zoom increment for smooth control
+- Perfect for PCB defects, microscopy, surface inspection
+- Mouse wheel zooms centered on cursor position
+
+**Example:** Annotate hairline cracks or solder bridges with pixel-level precision.
+
+#### 2. **Multiple Point Addition** (`Ctrl+M`)
 Quickly refine polygon boundaries by adding multiple evenly-spaced points along edges.
 
 - Hover over any polygon edge in edit mode
@@ -33,7 +43,7 @@ Quickly refine polygon boundaries by adding multiple evenly-spaced points along 
 
 **Example:** Add 10 points to a curved car windshield edge in one action instead of clicking 10 times.
 
-#### 2. **Polygon Merge** (`Ctrl+Shift+M`)
+#### 3. **Polygon Merge** (`Ctrl+Shift+M`)
 Merge multiple polygons into one or batch-apply labels to disconnected objects.
 
 - Select 2+ polygons (hold `Ctrl` while clicking)
@@ -45,7 +55,7 @@ Merge multiple polygons into one or batch-apply labels to disconnected objects.
 
 **Example:** Annotate 20 cars by drawing rough boxes, select all, merge once - all labeled "car" instantly.
 
-#### 3. **Dark Mode** (View → Dark Mode)
+#### 4. **Dark Mode** (View → Dark Mode)
 Eye-friendly dark theme inspired by VS Code.
 
 - Toggle instantly via View menu
@@ -53,7 +63,7 @@ Eye-friendly dark theme inspired by VS Code.
 - Reduces eye strain during long sessions
 - Professional color scheme
 
-#### 4. **Improved Default Settings**
+#### 5. **Improved Default Settings**
 Better defaults for faster annotation workflow:
 
 | Setting | Old Default | New Default | Why? |
@@ -64,8 +74,9 @@ Better defaults for faster annotation workflow:
 | `dark_mode` | N/A | `true` | Eye comfort |
 | `canvas.fill_drawing` | `true` | `false` | See through shapes |
 | `canvas.num_backups` | 10 | 20 | More undo history |
+| `max_zoom` | 1000% | 5000% | 5x more zoom |
 
-#### 5. **Better Keyboard Shortcuts**
+#### 6. **Better Keyboard Shortcuts**
 More intuitive shortcuts that don't conflict:
 
 | Action | Old Shortcut | New Shortcut |
@@ -113,6 +124,7 @@ View → Dark Mode
 
 | Feature | Shortcut | Usage |
 |---------|----------|-------|
+| **High Zoom (5000%)** | Mouse wheel | Scroll on image to zoom up to 50x magnification |
 | **Add Multiple Points** | `Ctrl+M` | Edit mode → Hover edge → Ctrl+M → Enter count |
 | **Merge Polygons** | `Ctrl+Shift+M` | Select multiple → Ctrl+Shift+M |
 | **Dark Mode** | View menu | View → Dark Mode (toggles instantly) |

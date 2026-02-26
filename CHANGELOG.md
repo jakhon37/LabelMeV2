@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Enhanced Zoom Capabilities**: Increased maximum zoom from 1000% to 5000% (50x magnification) for tiny defect annotation
+  - Configurable `max_zoom` setting (default: 5000%)
+  - Configurable `zoom_increment` for smoother control (default: 1.1)
+  - Better support for microscopic defect inspection
 - **Multiple Point Addition Feature (`Ctrl+M`)**: Add multiple evenly-spaced points along polygon edges for refined annotation
 - **Polygon Merge Feature (`Ctrl+Shift+M`)**: Merge multiple polygons with intelligent handling of connected/disconnected regions
 - **Dark Mode**: Eye-friendly dark theme inspired by VS Code (toggle via View menu)

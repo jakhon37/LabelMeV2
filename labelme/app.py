@@ -207,7 +207,9 @@ class MainWindow(QtWidgets.QMainWindow):
         fileListWidget.setLayout(fileListLayout)
         self.file_dock.setWidget(fileListWidget)
 
-        self.zoomWidget = ZoomWidget()
+        # Use configurable max zoom from config
+        max_zoom = self._config.get("max_zoom", 5000)
+        self.zoomWidget = ZoomWidget(max_zoom=max_zoom)
         self.setAcceptDrops(True)
 
         self.canvas = Canvas(
@@ -1800,7 +1802,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._set_zoom(value=zoom_value, pos=pos)
 
     def _zoom_requested(self, delta: int, pos: QtCore.QPointF) -> None:
-        self._add_zoom(increment=1.1 if delta > 0 else 0.9, pos=pos)
+        # Use configurable zoom increment for smoother control
+        increment = self._config.get("zoom_increment", 1.1)
+        self._add_zoom(increment=increment if delta > 0 else 1.0 / increment, pos=pos)
 
     def setFitWindow(self, value=True):
         if value:
