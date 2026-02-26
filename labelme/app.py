@@ -1586,7 +1586,17 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             assert self.imagePath
             imagePath = osp.relpath(self.imagePath, osp.dirname(filename))
-            imageData = self.imageData if self._config["store_data"] else None
+            
+            # Handle imageData - load if needed for storage
+            if self._config["store_data"]:
+                if self.imageData is None:
+                    # Need to load for storage
+                    logger.info("Loading image data for storage in JSON")
+                    self.imageData = LabelFile.load_image_file(self.imagePath)
+                imageData = self.imageData
+            else:
+                imageData = None
+            
             if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
                 os.makedirs(osp.dirname(filename))
             lf.save(
@@ -1837,6 +1847,11 @@ class MainWindow(QtWidgets.QMainWindow):
             logger.warning("filename is None, cannot set brightness/contrast")
             return
 
+        # Load imageData if needed for brightness/contrast
+        if self.imageData is None:
+            logger.info("Loading image data for brightness/contrast adjustment")
+            self.imageData = LabelFile.load_image_file(self.imagePath)
+        
         dialog = BrightnessContrastDialog(
             utils.img_data_to_pil(self.imageData).convert("RGB"),
             self.onNewBrightnessContrast,
@@ -1935,11 +1950,21 @@ class MainWindow(QtWidgets.QMainWindow):
             )
             self._other_data = self.labelFile.otherData
         else:
-            self.imageData = LabelFile.load_image_file(filename)
-            if self.imageData:
+            # Fast path: Load image directly with Qt (skip PIL conversion for TIFF)
+            ext = osp.splitext(filename)[1].lower()
+            if ext in [".tif", ".tiff"] and not QtCore.QFile.exists(label_file):
+                # Direct Qt loading for TIFF files (much faster)
+                logger.info(f"Using direct Qt loading for TIFF file")
+                self.imageData = None  # Will load directly below
                 self.imagePath = filename
-            self.labelFile = None
-        assert self.imageData is not None
+                self.labelFile = None
+            else:
+                # Standard path: PIL conversion for compatibility
+                self.imageData = LabelFile.load_image_file(filename)
+                if self.imageData:
+                    self.imagePath = filename
+                self.labelFile = None
+        
         t2 = time.time()
         logger.info(f"⏱️ Time to load file data: {(t2-t1)*1000:.0f}ms")
         
@@ -1951,8 +1976,12 @@ class MainWindow(QtWidgets.QMainWindow):
             t3 = time.time()
             logger.info(f"⏱️ Cache retrieval: {(t3-t2)*1000:.0f}ms")
         else:
-            # Performance optimization: Use QImageReader for efficient loading
-            if self._config["performance"]["auto_downsample_large_images"]:
+            # Fast path for direct file loading (TIFF)
+            if self.imageData is None:
+                logger.info(f"Loading TIFF directly with QImageReader")
+                image = self._load_image_directly_from_file(self.imagePath)
+            # Standard path: Use QImageReader for efficient loading from bytes
+            elif self._config["performance"]["auto_downsample_large_images"]:
                 image = self._load_image_optimized(self.imageData)
             else:
                 image = QtGui.QImage.fromData(self.imageData)
@@ -2112,6 +2141,44 @@ class MainWindow(QtWidgets.QMainWindow):
         buffer.close()
         # Standard loading for normal-sized images or if optimization failed
         return QtGui.QImage.fromData(image_data)
+    
+    def _load_image_directly_from_file(self, filename: str) -> QtGui.QImage:
+        """Load image directly from file without PIL conversion (fast path for TIFF)"""
+        image_reader = QtGui.QImageReader(filename)
+        
+        size = image_reader.size()
+        if size.width() == 0 or size.height() == 0:
+            logger.warning(f"Failed to read image size from {filename}")
+            return QtGui.QImage()
+        
+        threshold = self._config["performance"]["downsample_threshold"]
+        factor = self._config["performance"]["downsample_factor"]
+        
+        # Check if downsampling is needed
+        if self._config["performance"]["auto_downsample_large_images"] and \
+           (size.width() > threshold or size.height() > threshold):
+            # Calculate target size
+            scaled_size = QtCore.QSize(
+                size.width() // factor,
+                size.height() // factor
+            )
+            
+            # Set scaled size for efficient loading
+            image_reader.setScaledSize(scaled_size)
+            
+            logger.info(
+                f"Loading TIFF {size.width()}x{size.height()} "
+                f"directly at {scaled_size.width()}x{scaled_size.height()} "
+                f"(factor={factor}) from file!"
+            )
+        
+        # Read the image
+        image = image_reader.read()
+        
+        if image.isNull():
+            logger.error(f"Failed to load image from {filename}")
+        
+        return image
     
     def _downsample_if_needed(self, image: QtGui.QImage) -> QtGui.QImage:
         """Downsample large images for better performance (legacy fallback)"""
