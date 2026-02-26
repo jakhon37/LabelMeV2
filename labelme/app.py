@@ -211,6 +211,11 @@ class MainWindow(QtWidgets.QMainWindow):
         max_zoom = self._config.get("max_zoom", 5000)
         self.zoomWidget = ZoomWidget(max_zoom=max_zoom)
         self.setAcceptDrops(True)
+        
+        # Image cache for fast navigation
+        self._image_cache = {}
+        self._image_cache_order = []
+        self._max_cache_size = self._config["performance"]["max_image_cache_size"]
 
         self.canvas = Canvas(
             epsilon=self._config["epsilon"],
@@ -1930,11 +1935,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.imagePath = filename
             self.labelFile = None
         assert self.imageData is not None
-        image = QtGui.QImage.fromData(self.imageData)
-
-        # Performance optimization: downsample large images for display
-        if self._config["performance"]["auto_downsample_large_images"]:
-            image = self._downsample_if_needed(image)
+        
+        # Check cache first for fast navigation
+        cache_key = filename
+        if cache_key in self._image_cache:
+            logger.info(f"Loading image from cache: {osp.basename(filename)}")
+            image = self._image_cache[cache_key]
+        else:
+            # Performance optimization: Use QImageReader for efficient loading
+            if self._config["performance"]["auto_downsample_large_images"]:
+                image = self._load_image_optimized(self.imageData)
+            else:
+                image = QtGui.QImage.fromData(self.imageData)
+            
+            # Add to cache
+            self._add_to_cache(cache_key, image)
 
         if image.isNull():
             formats = [
@@ -2005,8 +2020,74 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.adjustSize()
         self.canvas.update()
     
+    def _add_to_cache(self, key: str, image: QtGui.QImage) -> None:
+        """Add image to cache with LRU eviction"""
+        # Remove if already in cache (update position)
+        if key in self._image_cache:
+            self._image_cache_order.remove(key)
+        
+        # Add to cache
+        self._image_cache[key] = image
+        self._image_cache_order.append(key)
+        
+        # Evict oldest if cache is full
+        while len(self._image_cache) > self._max_cache_size:
+            oldest = self._image_cache_order.pop(0)
+            del self._image_cache[oldest]
+            logger.debug(f"Evicted image from cache: {osp.basename(oldest)}")
+    
+    def _load_image_optimized(self, image_data: bytes) -> QtGui.QImage:
+        """Load image with optimization for large files"""
+        # First, quickly get dimensions without full decode
+        byte_array = QtCore.QByteArray(image_data)
+        buffer = QtCore.QBuffer(byte_array)
+        buffer.open(QtCore.QIODevice.ReadOnly)
+        
+        image_reader = QtGui.QImageReader(buffer)
+        
+        size = image_reader.size()
+        if size.width() == 0 or size.height() == 0:
+            # Fallback to regular loading
+            buffer.close()
+            return QtGui.QImage.fromData(image_data)
+        
+        threshold = self._config["performance"]["downsample_threshold"]
+        factor = self._config["performance"]["downsample_factor"]
+        
+        # Check if downsampling is needed
+        if size.width() > threshold or size.height() > threshold:
+            # Calculate target size
+            scaled_size = QtCore.QSize(
+                size.width() // factor,
+                size.height() // factor
+            )
+            
+            # Set scaled size for efficient loading
+            image_reader.setScaledSize(scaled_size)
+            
+            logger.info(
+                f"Loading large image {size.width()}x{size.height()} "
+                f"directly at {scaled_size.width()}x{scaled_size.height()} "
+                f"(factor={factor}) - much faster!"
+            )
+            
+            # Read at reduced resolution (faster than load-then-scale)
+            image = image_reader.read()
+            buffer.close()
+            
+            if not image.isNull():
+                return image
+            else:
+                logger.warning(
+                    "Optimized loading failed, falling back to standard method"
+                )
+        
+        buffer.close()
+        # Standard loading for normal-sized images or if optimization failed
+        return QtGui.QImage.fromData(image_data)
+    
     def _downsample_if_needed(self, image: QtGui.QImage) -> QtGui.QImage:
-        """Downsample large images for better performance"""
+        """Downsample large images for better performance (legacy fallback)"""
         threshold = self._config["performance"]["downsample_threshold"]
         factor = self._config["performance"]["downsample_factor"]
         

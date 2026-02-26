@@ -43,7 +43,7 @@ Maximum zoom increased from 1000% to 5000% (50x magnification) for tiny defect a
 
 **Example:** Annotate hairline cracks or solder bridges with pixel-level precision.
 
-#### 2. **Multiple Point Addition** (`Ctrl+M`)
+#### 3. **Multiple Point Addition** (`Ctrl+M`)
 Quickly refine polygon boundaries by adding multiple evenly-spaced points along edges.
 
 - Hover over any polygon edge in edit mode
@@ -53,7 +53,7 @@ Quickly refine polygon boundaries by adding multiple evenly-spaced points along 
 
 **Example:** Add 10 points to a curved car windshield edge in one action instead of clicking 10 times.
 
-#### 3. **Polygon Merge** (`Ctrl+Shift+M`)
+#### 4. **Polygon Merge** (`Ctrl+Shift+M`)
 Merge multiple polygons into one or batch-apply labels to disconnected objects.
 
 - Select 2+ polygons (hold `Ctrl` while clicking)
@@ -65,7 +65,7 @@ Merge multiple polygons into one or batch-apply labels to disconnected objects.
 
 **Example:** Annotate 20 cars by drawing rough boxes, select all, merge once - all labeled "car" instantly.
 
-#### 4. **Dark Mode** (View → Dark Mode)
+#### 5. **Dark Mode** (View → Dark Mode)
 Eye-friendly dark theme inspired by VS Code.
 
 - Toggle instantly via View menu
@@ -73,7 +73,7 @@ Eye-friendly dark theme inspired by VS Code.
 - Reduces eye strain during long sessions
 - Professional color scheme
 
-#### 5. **Improved Default Settings**
+#### 6. **Improved Default Settings**
 Better defaults for faster annotation workflow:
 
 | Setting | Old Default | New Default | Why? |
@@ -86,7 +86,7 @@ Better defaults for faster annotation workflow:
 | `canvas.num_backups` | 10 | 20 | More undo history |
 | `max_zoom` | 1000% | 5000% | 5x more zoom |
 
-#### 6. **Better Keyboard Shortcuts**
+#### 7. **Better Keyboard Shortcuts**
 More intuitive shortcuts that don't conflict:
 
 | Action | Old Shortcut | New Shortcut |

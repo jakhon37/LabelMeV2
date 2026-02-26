@@ -64,7 +64,7 @@ fit_to_content:
 
 # canvas
 epsilon: 10.0
-default_num_points_to_add: 1
+default_num_points_to_add: 5
 # Zoom settings for better control
 zoom_increment: 1.1  # Multiplier for zoom in/out (1.1 = 10% steps)
 max_zoom: 5000  # Maximum zoom percentage (5000% = 50x)
@@ -73,8 +73,8 @@ max_zoom: 5000  # Maximum zoom percentage (5000% = 50x)
 performance:
   # Image optimization (for 16000x8000+ images)
   auto_downsample_large_images: true
-  downsample_threshold: 8000  # Downsample if width/height > this
-  downsample_factor: 2        # 2=half size, 4=quarter size
+  downsample_threshold: 5000 # 8000  # Downsample if width/height > this
+  downsample_factor: 4        # 2=half size, 4=quarter size
   
   # Polygon optimization (for 100+ polygons)
   enable_viewport_culling: true  # Only render visible polygons
