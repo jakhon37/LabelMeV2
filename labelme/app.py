@@ -9,6 +9,7 @@ import os.path as osp
 import platform
 import re
 import subprocess
+import time
 import types
 import webbrowser
 from pathlib import Path
@@ -1876,6 +1877,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _load_file(self, filename=None):
         """Load the specified file, or the last opened file if None."""
+        load_start = time.time()
+        
         # changing fileListWidget loads file
         if filename in self.imageList and (
             self.fileListWidget.currentRow() != self.imageList.index(filename)
@@ -1908,6 +1911,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.output_dir:
             label_file_without_path = osp.basename(label_file)
             label_file = osp.join(self.output_dir, label_file_without_path)
+        
+        t1 = time.time()
         if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(label_file):
             try:
                 self.labelFile = LabelFile(label_file)
@@ -1935,18 +1940,24 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.imagePath = filename
             self.labelFile = None
         assert self.imageData is not None
+        t2 = time.time()
+        logger.info(f"⏱️ Time to load file data: {(t2-t1)*1000:.0f}ms")
         
         # Check cache first for fast navigation
         cache_key = filename
         if cache_key in self._image_cache:
-            logger.info(f"Loading image from cache: {osp.basename(filename)}")
+            logger.info(f"✅ Loading image from cache: {osp.basename(filename)}")
             image = self._image_cache[cache_key]
+            t3 = time.time()
+            logger.info(f"⏱️ Cache retrieval: {(t3-t2)*1000:.0f}ms")
         else:
             # Performance optimization: Use QImageReader for efficient loading
             if self._config["performance"]["auto_downsample_large_images"]:
                 image = self._load_image_optimized(self.imageData)
             else:
                 image = QtGui.QImage.fromData(self.imageData)
+            t3 = time.time()
+            logger.info(f"⏱️ Image decode time: {(t3-t2)*1000:.0f}ms")
             
             # Add to cache
             self._add_to_cache(cache_key, image)
@@ -1965,14 +1976,21 @@ class MainWindow(QtWidgets.QMainWindow):
             )
             self.show_status_message(self.tr("Error reading %s") % filename)
             return False
+        t4 = time.time()
         self.image = image
         self.filename = filename
         self.canvas.loadPixmap(QtGui.QPixmap.fromImage(image))
+        t5 = time.time()
+        logger.info(f"⏱️ QPixmap conversion: {(t5-t4)*1000:.0f}ms")
+        
         flags = {k: False for k in self._config["flags"] or []}
         if self.labelFile:
             self._load_shape_dicts(shape_dicts=self.labelFile.shapes)
             if self.labelFile.flags is not None:
                 flags.update(self.labelFile.flags)
+        t6 = time.time()
+        logger.info(f"⏱️ Load shapes: {(t6-t5)*1000:.0f}ms")
+        
         self._load_flags(flags=flags)
         if prev_shapes and self.noShapes():
             self._load_shapes(shapes=prev_shapes, replace=False)
@@ -1994,12 +2012,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.setScroll(
                     orientation, self.scroll_values[orientation][self.filename]
                 )
+        t7 = time.time()
+        logger.info(f"⏱️ UI setup (zoom/scroll): {(t7-t6)*1000:.0f}ms")
+        
         self.brightnessContrast(value=False, is_initial_load=True)
         self._paint_canvas()
+        t8 = time.time()
+        logger.info(f"⏱️ Paint canvas: {(t8-t7)*1000:.0f}ms")
+        
         self.addRecentFile(self.filename)
         self.toggleActions(True)
         self.canvas.setFocus()
         self.show_status_message(self.tr("Loaded %s") % osp.basename(filename))
+        
+        total_time = time.time() - load_start
+        logger.info(f"🎯 TOTAL LOAD TIME: {total_time*1000:.0f}ms")
         logger.debug("loaded file: {!r}", filename)
         return True
 

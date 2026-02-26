@@ -73,8 +73,8 @@ max_zoom: 5000  # Maximum zoom percentage (5000% = 50x)
 performance:
   # Image optimization (for 16000x8000+ images)
   auto_downsample_large_images: true
-  downsample_threshold: 5000 # 8000  # Downsample if width/height > this
-  downsample_factor: 4        # 2=half size, 4=quarter size
+  downsample_threshold: 8000  # Downsample if width/height > this
+  downsample_factor: 2        # 2=half size, 4=quarter size
   
   # Polygon optimization (for 100+ polygons)
   enable_viewport_culling: true  # Only render visible polygons
