@@ -68,6 +68,20 @@ default_num_points_to_add: 1
 # Zoom settings for better control
 zoom_increment: 1.1  # Multiplier for zoom in/out (1.1 = 10% steps)
 max_zoom: 5000  # Maximum zoom percentage (5000% = 50x)
+
+# Performance settings for large images and many polygons
+performance:
+  # Image optimization (for 16000x8000+ images)
+  auto_downsample_large_images: true
+  downsample_threshold: 8000  # Downsample if width/height > this
+  downsample_factor: 2        # 2=half size, 4=quarter size
+  
+  # Polygon optimization (for 100+ polygons)
+  enable_viewport_culling: true  # Only render visible polygons
+  
+  # Memory management
+  max_image_cache_size: 3     # Number of images to keep in memory
+
 canvas:
   fill_drawing: false
   # None: do nothing

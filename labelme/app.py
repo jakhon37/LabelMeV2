@@ -217,6 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
             double_click=self._config["canvas"]["double_click"],
             num_backups=self._config["canvas"]["num_backups"],
             crosshair=self._config["canvas"]["crosshair"],
+            enable_viewport_culling=self._config["performance"]["enable_viewport_culling"],
         )
         self.canvas.zoomRequest.connect(self._zoom_requested)
         self.canvas.mouseMoved.connect(self._update_status_stats)
@@ -1931,6 +1932,10 @@ class MainWindow(QtWidgets.QMainWindow):
         assert self.imageData is not None
         image = QtGui.QImage.fromData(self.imageData)
 
+        # Performance optimization: downsample large images for display
+        if self._config["performance"]["auto_downsample_large_images"]:
+            image = self._downsample_if_needed(image)
+
         if image.isNull():
             formats = [
                 f"*.{fmt.data().decode()}"
@@ -1999,6 +2004,28 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.scale = 0.01 * self.zoomWidget.value()
         self.canvas.adjustSize()
         self.canvas.update()
+    
+    def _downsample_if_needed(self, image: QtGui.QImage) -> QtGui.QImage:
+        """Downsample large images for better performance"""
+        threshold = self._config["performance"]["downsample_threshold"]
+        factor = self._config["performance"]["downsample_factor"]
+        
+        w, h = image.width(), image.height()
+        
+        if w > threshold or h > threshold:
+            new_w = w // factor
+            new_h = h // factor
+            logger.info(
+                f"Downsampling large image {w}x{h} -> {new_w}x{new_h} "
+                f"for display (factor={factor})"
+            )
+            return image.scaled(
+                new_w, new_h,
+                QtCore.Qt.KeepAspectRatio,
+                QtCore.Qt.SmoothTransformation
+            )
+        
+        return image
 
     def _adjust_scale(self) -> None:
         self._set_zoom(value=int(self.scalers[self._zoom_mode]() * 100))
