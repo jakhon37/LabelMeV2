@@ -245,24 +245,39 @@ GPL-3.0-only - Same as original [wkentaro/labelme](https://github.com/wkentaro/l
 
 ---
 
-## 🙏 Acknowledgments
+## 🙏 Acknowledgments & Credits
 
-This is an enhanced fork of [wkentaro/labelme](https://github.com/wkentaro/labelme) by Kentaro Wada.
+**This project is based on [wkentaro/labelme](https://github.com/wkentaro/labelme)**
 
-**Original repo**: <https://github.com/wkentaro/labelme>  
-**Original author**: [Kentaro Wada](https://github.com/wkentaro)
+- **Original Author**: [Kentaro Wada](https://github.com/wkentaro)
+- **Original Repository**: https://github.com/wkentaro/labelme
+- **License**: GPL-3.0 (maintained in this fork)
 
-New features in this fork:
-- Multiple point addition
-- Polygon merge
-- Dark mode
-- Improved defaults
-- Better keyboard shortcuts
+This enhanced version builds upon the excellent foundation of the original labelme, adding:
+
+**Performance Enhancements by Jakhongir Nodirov:**
+- ⚡ 45x faster image loading for large TIFF/JPG/PNG files
+- 🖼️ Smart image caching with LRU eviction
+- 🎨 Viewport culling for smooth rendering with hundreds of polygons
+- 📊 Optimized memory usage for massive images
+
+**New Features:**
+- 🔍 Enhanced zoom up to 5000% for tiny defect inspection
+- ➕ Multiple point addition (Ctrl+M) for quick polygon refinement
+- 🔗 Polygon merge (Ctrl+Shift+M) for batch labeling
+- 🌙 Dark mode for comfortable annotation sessions
+- ⚙️ Improved default settings for faster workflows
+
+**Maintained by**: [Jakhongir Nodirov](https://github.com/jakhon37) (jakhon37@gmail.com)
+
+For the complete original labelme documentation and features, please visit the [official repository](https://github.com/wkentaro/labelme).
 
 ---
 
-## ⭐ Star History
+## ⭐ Support
 
-If you find these enhancements useful, please star this repo!
-
-For the original labelme and its extensive documentation, visit the [official repository](https://github.com/wkentaro/labelme).
+If you find these enhancements useful:
+- ⭐ Star this repository
+- 🐛 Report issues on [GitHub Issues](https://github.com/jakhon37/LabelMeV2/issues)
+- 💬 Share feedback and suggestions
+- ⭐ Also star the [original labelme](https://github.com/wkentaro/labelme) project!
