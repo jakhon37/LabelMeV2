@@ -179,21 +179,30 @@ class LabelFile:
             image_file_path = osp.join(osp.dirname(filename), imagePath)
             image_exists = osp.exists(image_file_path)
             
+            # Check if imagePath points to an actual image file (not JSON or other)
+            image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', '.webp', '.gif']
+            ext = osp.splitext(imagePath)[1].lower()
+            is_image_file = ext in image_extensions
+            
             # For all image files that exist on disk, skip loading imageData (major speedup!)
             # Let QImageReader handle all formats efficiently with downsampling
             if data["imageData"] is not None:
-                if image_exists:
+                if image_exists and is_image_file:
                     # Image file exists - will be loaded directly later (fast path)
                     logger.info(f"Skipping embedded imageData from JSON - will load {imagePath} directly")
                     imageData = None
                 else:
-                    # No file on disk, load from JSON
+                    # No file on disk, not an image, or imagePath is invalid - load from JSON
                     imageData = base64.b64decode(data["imageData"])
                     logger.debug(f"Loaded imageData from JSON ({len(imageData)} bytes)")
-            elif image_exists:
-                # No imageData in JSON - use direct file loading (fast path)
+            elif image_exists and is_image_file:
+                # No imageData in JSON and it's an image file - use direct file loading (fast path)
                 logger.info(f"No imageData in JSON - will load {imagePath} directly")
                 imageData = None
+            elif image_exists:
+                # File exists but not an image - load via PIL
+                logger.info(f"Loading {imagePath} via PIL (no imageData in JSON)")
+                imageData = self.load_image_file(image_file_path)
             else:
                 # No imageData and file doesn't exist
                 raise LabelFileError(f"Image file not found: {image_file_path}")
