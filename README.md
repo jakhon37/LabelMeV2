@@ -1,12 +1,12 @@
-# labelme-enhanced
+# LabelMe V2
 
 <div align="center">
   <img src="labelme/icons/icon-256.png" width="200" height="200">
   
   ### Image Annotation Tool with Advanced Features & Performance Optimizations
   
-  [![PyPI](https://img.shields.io/pypi/v/labelme-enhanced.svg)](https://pypi.python.org/pypi/labelme-enhanced)
-  [![Python Version](https://img.shields.io/pypi/pyversions/labelme-enhanced.svg)](https://pypi.org/project/labelme-enhanced/)
+  [![PyPI](https://img.shields.io/pypi/v/labelmev2.svg)](https://pypi.python.org/pypi/labelmev2)
+  [![Python Version](https://img.shields.io/pypi/pyversions/labelmev2.svg)](https://pypi.org/project/labelmev2/)
   [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
   [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
   [![Tests](https://img.shields.io/badge/tests-38%20passed-brightgreen.svg)]()
@@ -122,7 +122,7 @@ More intuitive shortcuts that don't conflict:
 ### From PyPI (Recommended)
 
 ```bash
-pip install labelme-enhanced
+pip install labelmev2
 ```
 
 ### From Source

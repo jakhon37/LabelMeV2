@@ -3,15 +3,15 @@ requires = ["hatchling>=1.20.0", "hatch-vcs", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 [project]
-name = "labelme-enhanced"
-description = "Image Polygonal Annotation with Python - Enhanced Edition with Performance Optimizations"
+name = "labelmev2"
+description = "Image Polygonal Annotation with Python - V2 with 45x Faster Performance"
 license = { text = "GPL-3.0-only" }
 requires-python = ">=3.10"
 authors = [
     { name = "Jakhongir Nodirov", email = "jakhon37@gmail.com" }
 ]
 maintainers = [{ name = "Jakhongir Nodirov", email = "jakhon37@gmail.com" }]
-keywords = ["Image Annotation", "Machine Learning", "Deep Learning", "Computer Vision", "Labeling Tool"]
+keywords = ["Image Annotation", "Machine Learning", "Deep Learning", "Computer Vision", "Labeling Tool", "LabelMe"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
