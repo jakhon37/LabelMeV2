@@ -175,19 +175,33 @@ class LabelFile:
             # Normalize Windows-style backslash paths to POSIX forward slashes
             imagePath = PureWindowsPath(data["imagePath"]).as_posix()
 
-            if data["imageData"] is not None:
+            # Performance optimization: Skip loading imageData from JSON if file exists
+            image_file_path = osp.join(osp.dirname(filename), imagePath)
+            image_exists = osp.exists(image_file_path)
+            ext = osp.splitext(imagePath)[1].lower()
+            is_tiff = ext in [".tif", ".tiff"]
+            
+            # For TIFF files that exist, skip loading embedded imageData (major speedup!)
+            if data["imageData"] is not None and not (image_exists and is_tiff):
                 imageData = base64.b64decode(data["imageData"])
+                logger.debug(f"Loaded imageData from JSON ({len(imageData)} bytes)")
+            elif image_exists:
+                # Image file exists - will be loaded directly later (fast path)
+                logger.info(f"Skipping imageData from JSON - will load {imagePath} directly")
+                imageData = None
             else:
-                # relative path from label file to relative path from cwd
-                imageData = self.load_image_file(
-                    osp.join(osp.dirname(filename), imagePath)
-                )
+                # Fallback: load from file referenced in JSON
+                imageData = self.load_image_file(image_file_path)
             flags = data.get("flags") or {}
-            self._check_image_height_and_width(
-                base64.b64encode(imageData).decode("utf-8"),
-                data.get("imageHeight"),
-                data.get("imageWidth"),
-            )
+            
+            # Skip image validation if imageData is None (fast path)
+            if imageData is not None:
+                self._check_image_height_and_width(
+                    base64.b64encode(imageData).decode("utf-8"),
+                    data.get("imageHeight"),
+                    data.get("imageWidth"),
+                )
+            
             shapes: list[ShapeDict] = [
                 _load_shape_json_obj(shape_json_obj=s) for s in data["shapes"]
             ]
