@@ -820,30 +820,33 @@ class Canvas(QtWidgets.QWidget):
         self.update()
 
     def mergeSelectedShapes(self):
-        """Merge selected shapes using union operation (keeps all disconnected regions)"""
+        """Merge selected shapes using union operation.
+
+        Keeps all disconnected regions as separate polygons.
+        """
         if len(self.selectedShapes) < 2:
             logger.warning("Need at least 2 shapes selected to merge")
             return None
-        
+
         merged_shapes = Shape.mergeShapes(self.selectedShapes)
         if merged_shapes is None:
             return None
-        
+
         # Remove original shapes
         for shape in self.selectedShapes:
             if shape in self.shapes:
                 self.shapes.remove(shape)
-        
+
         # Add merged shape(s)
         for merged_shape in merged_shapes:
             self.shapes.append(merged_shape)
             merged_shape.selected = True
-        
+
         self.storeShapes()
-        
+
         # Select the new merged shape(s)
         self.selectedShapes = merged_shapes
-        
+
         self.update()
         return merged_shapes
 

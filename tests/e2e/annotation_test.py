@@ -24,9 +24,11 @@ def test_MainWindow_annotate_jpg(
     input_file: str = str(data_path / "raw/2011_000003.jpg")
     out_file: str = str(tmp_path / "2011_000003.json")
 
+    # Disable auto_save to test explicit output_file
     win: labelme.app.MainWindow = labelme.app.MainWindow(
         filename=input_file,
         output_file=out_file,
+        config_overrides={"auto_save": False},
     )
     qtbot.addWidget(win)
     show_window_and_wait_for_imagedata(qtbot=qtbot, win=win)

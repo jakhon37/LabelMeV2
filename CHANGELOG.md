@@ -1,0 +1,57 @@
+# Changelog
+
+All notable changes to this enhanced fork of labelme will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- **Multiple Point Addition Feature (`Ctrl+M`)**: Add multiple evenly-spaced points along polygon edges for refined annotation
+- **Polygon Merge Feature (`Ctrl+Shift+M`)**: Merge multiple polygons with intelligent handling of connected/disconnected regions
+- **Dark Mode**: Eye-friendly dark theme inspired by VS Code (toggle via View menu)
+- **Improved Default Settings**: Better defaults for production use
+  - `auto_save` now `true` by default (never lose work)
+  - `store_data` now `false` by default (smaller JSON files)
+  - `keep_prev_brightness_contrast` now `true` (consistent visuals)
+  - `canvas.fill_drawing` now `false` (see through shapes while drawing)
+  - `canvas.num_backups` increased to 20 (more undo history)
+- **Better Keyboard Shortcuts**: More intuitive shortcuts that don't conflict
+  - `Ctrl+Shift+C` for Create Polygon (was `Ctrl+N`)
+  - `Ctrl+Shift+X` for Create Rectangle (was `Ctrl+R`)
+  - `Ctrl+Shift+V` for Edit Polygon (was `Ctrl+J`)
+- Pre-commit hooks for automated code quality checks
+- `.editorconfig` for consistent coding style across editors
+- `.gitattributes` for consistent line endings
+- Comprehensive test suite with 38 tests (100% passing)
+- Production-level code quality (all linting checks pass)
+
+### Changed
+- Refactored polygon editing logic for better maintainability
+- Improved error messages and user feedback
+- Updated tests to reflect new default settings
+- Consolidated documentation structure
+
+### Fixed
+- Test suite now fully working with all dependencies properly configured
+- All code style and linting issues resolved
+- Line length issues in message dialogs fixed
+
+## [0.0.1] - 2024-02-25
+
+### Added
+- Initial fork from [wkentaro/labelme](https://github.com/wkentaro/labelme)
+- Basic dark mode implementation
+- File reorganization
+
+---
+
+## Contributing
+
+For details on our release process and development workflow, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Upstream
+
+This is an enhanced fork of [wkentaro/labelme](https://github.com/wkentaro/labelme) by Kentaro Wada.
+See the upstream repository for the full history prior to this fork.

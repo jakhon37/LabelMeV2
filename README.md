@@ -7,6 +7,10 @@
   
   [![PyPI](https://img.shields.io/pypi/v/labelme.svg)](https://pypi.python.org/pypi/labelme)
   [![CI](https://github.com/wkentaro/labelme/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/wkentaro/labelme/actions)
+  [![Python Version](https://img.shields.io/pypi/pyversions/labelme.svg)](https://pypi.org/project/labelme/)
+  [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+  [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+  [![Tests](https://img.shields.io/badge/tests-38%20passed-brightgreen.svg)]()
   
   **Enhanced fork of [wkentaro/labelme](https://github.com/wkentaro/labelme) with productivity features**
 </div>

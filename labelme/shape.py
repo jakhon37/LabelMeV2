@@ -174,7 +174,7 @@ class Shape:
 
     def addMultiplePointsToEdge(self, i: int, num_points: int = 1):
         """Add multiple evenly-spaced points along edge at index i
-        
+
         Args:
             i: Edge index (between point i-1 and point i)
             num_points: Number of points to add along the edge
@@ -195,6 +195,7 @@ class Shape:
 
         # Calculate evenly-spaced points along the edge
         from PyQt5 import QtCore
+
         new_points = []
         for j in range(1, num_points + 1):
             t = j / (num_points + 1)  # Fraction along the edge
@@ -433,22 +434,25 @@ class Shape:
     @staticmethod
     def mergeShapes(shapes: list["Shape"]) -> list["Shape"] | None:
         """Merge multiple polygon shapes using union operation
-        
+
         Args:
             shapes: List of Shape objects to merge (must be polygons)
-            
+
         Returns:
-            A list of new Shape objects (multiple if disconnected), or None if merge fails
+            A list of new Shape objects (multiple if disconnected),
+            or None if merge fails
         """
         if not shapes:
             return None
-        
+
         # Filter only polygon-like shapes
-        polygons = [s for s in shapes if s.shape_type == "polygon" and len(s.points) >= 3]
+        polygons = [
+            s for s in shapes if s.shape_type == "polygon" and len(s.points) >= 3
+        ]
         if len(polygons) < 2:
             logger.warning("Need at least 2 polygon shapes to merge")
             return None
-        
+
         # Convert to Shapely polygons
         shapely_polygons = []
         for shape in polygons:
@@ -465,21 +469,21 @@ class Shape:
             except Exception as e:
                 logger.warning(f"Failed to create polygon: {e}")
                 continue
-        
+
         if len(shapely_polygons) < 2:
             logger.warning("Not enough valid polygons to merge")
             return None
-        
+
         # Perform union
         try:
             merged = unary_union(shapely_polygons)
         except Exception as e:
             logger.error(f"Failed to merge polygons: {e}")
             return None
-        
+
         # Convert back to Shape(s)
         result_shapes = []
-        
+
         # Handle MultiPolygon result (keep all disconnected polygons)
         if merged.geom_type == "MultiPolygon":
             logger.info(f"Merge resulted in {len(merged.geoms)} disconnected polygons")
@@ -489,14 +493,14 @@ class Shape:
         else:
             logger.error(f"Unexpected geometry type after merge: {merged.geom_type}")
             return None
-        
+
         # Convert each polygon to a Shape
         for poly in polys_to_convert:
             merged_shape = Shape(shape_type="polygon", label=polygons[0].label)
             coords = list(poly.exterior.coords[:-1])  # Remove duplicate last point
             for x, y in coords:
                 merged_shape.addPoint(QtCore.QPointF(x, y))
-            
+
             # Copy properties from first shape
             merged_shape.line_color = polygons[0].line_color
             merged_shape.fill_color = polygons[0].fill_color
@@ -504,9 +508,9 @@ class Shape:
             merged_shape.group_id = polygons[0].group_id
             merged_shape.description = polygons[0].description
             merged_shape.close()
-            
+
             result_shapes.append(merged_shape)
-        
+
         return result_shapes if result_shapes else None
 
     def __len__(self):

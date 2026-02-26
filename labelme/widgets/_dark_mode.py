@@ -449,7 +449,7 @@ QSplitter::handle:hover {
 
 def get_dark_stylesheet() -> str:
     """Get the dark mode stylesheet.
-    
+
     Returns:
         The complete dark mode stylesheet as a string.
     """

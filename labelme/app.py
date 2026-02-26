@@ -1626,10 +1626,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.tr("Please select at least 2 polygons to merge"),
             )
             return
-        
+
         # Store original count for feedback
         original_count = len(self.canvas.selectedShapes)
-        
+
         # Store the shapes to merge before calling canvas method
         merged_shapes = self.canvas.mergeSelectedShapes()
         if merged_shapes:
@@ -1637,7 +1637,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.labelList.clear()
             self._load_shapes(self.canvas.shapes, replace=True)
             self.setDirty()
-            
+
             # Provide feedback based on result
             if len(merged_shapes) == 1:
                 # Successful merge into single polygon
@@ -1648,26 +1648,40 @@ class MainWindow(QtWidgets.QMainWindow):
                 )
             elif len(merged_shapes) < original_count:
                 # Partial merge (some were touching, some weren't)
+                msg = (
+                    f"Merged {original_count} polygons into "
+                    f"{len(merged_shapes)} polygons\n\n"
+                    f"Some polygons were not touching so they remain separate."
+                )
                 QMessageBox.information(
                     self,
                     self.tr("Merge Complete"),
-                    self.tr(f"Merged {original_count} polygons into {len(merged_shapes)} polygons\n\n"
-                            f"Some polygons were not touching so they remain separate."),
+                    self.tr(msg),
                 )
             else:
                 # No actual merge happened (all disconnected)
+                msg = (
+                    f"The selected {original_count} polygons are not "
+                    f"touching each other.\n\n"
+                    f"They have been processed but remain as "
+                    f"{len(merged_shapes)} separate polygons.\n\n"
+                    f"To merge polygons into one, they must be "
+                    f"adjacent or overlapping."
+                )
                 QMessageBox.information(
                     self,
                     self.tr("Merge Result"),
-                    self.tr(f"The selected {original_count} polygons are not touching each other.\n\n"
-                            f"They have been processed but remain as {len(merged_shapes)} separate polygons.\n\n"
-                            f"To merge polygons into one, they must be adjacent or overlapping."),
+                    self.tr(msg),
                 )
         else:
+            msg = (
+                "Failed to merge polygons. "
+                "Make sure all selected shapes are valid polygons."
+            )
             QMessageBox.warning(
                 self,
                 self.tr("Merge Failed"),
-                self.tr("Failed to merge polygons. Make sure all selected shapes are valid polygons."),
+                self.tr(msg),
             )
 
     def _label_selection_changed(self) -> None:

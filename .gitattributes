@@ -1,0 +1,43 @@
+# Git attributes for consistent line endings
+# See https://git-scm.com/docs/gitattributes
+
+# Auto detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Explicitly declare text files
+*.py text
+*.yaml text
+*.yml text
+*.json text
+*.md text
+*.txt text
+*.xml text
+*.toml text
+*.cfg text
+*.ini text
+
+# Declare binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pyc binary
+*.pyd binary
+*.so binary
+*.dll binary
+*.dylib binary
+
+# Export ignore (files to exclude from releases)
+.gitattributes export-ignore
+.gitignore export-ignore
+.github/ export-ignore
+.pre-commit-config.yaml export-ignore
+.editorconfig export-ignore
+tests/ export-ignore
+.docs/ export-ignore

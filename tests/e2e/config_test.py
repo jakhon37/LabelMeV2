@@ -24,7 +24,8 @@ def test_MainWindow_config(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     config_file: Path | None = None
-    auto_save: bool = False
+    # Default is now True in enhanced version
+    auto_save: bool = True
     if with_config_file:
         config_file = tmp_path / "labelmerc.yaml"
         config_file.write_text("auto_save: true\nlabels: [cat, dog]\n")
