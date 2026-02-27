@@ -216,6 +216,10 @@ dark_mode: true
 store_data: false
 keep_prev_brightness_contrast: true
 
+# Zoom settings
+zoom_increment: 1.15  # 15% per step (1.1=slow, 1.2=fast, 1.3=very fast)
+max_zoom: 5000        # 5000% = 50x magnification
+
 # New features config
 default_num_points_to_add: 1
 
