@@ -229,12 +229,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.mouseMoved.connect(self._update_status_stats)
         self.canvas.statusUpdated.connect(lambda text: self.status_left.setText(text))
 
-        scrollArea = QtWidgets.QScrollArea()
-        scrollArea.setWidget(self.canvas)
-        scrollArea.setWidgetResizable(True)
+        self.scrollArea = QtWidgets.QScrollArea()
+        self.scrollArea.setWidget(self.canvas)
+        self.scrollArea.setWidgetResizable(True)
         self.scrollBars = {
-            Qt.Vertical: scrollArea.verticalScrollBar(),
-            Qt.Horizontal: scrollArea.horizontalScrollBar(),
+            Qt.Vertical: self.scrollArea.verticalScrollBar(),
+            Qt.Horizontal: self.scrollArea.horizontalScrollBar(),
         }
         self.canvas.scrollRequest.connect(self.scrollRequest)
 
@@ -243,7 +243,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
 
-        self.setCentralWidget(scrollArea)
+        self.setCentralWidget(self.scrollArea)
 
         features = QtWidgets.QDockWidget.DockWidgetFeatures()
         for dock in ["flag_dock", "label_dock", "shape_dock", "file_dock"]:
@@ -1778,9 +1778,27 @@ class MainWindow(QtWidgets.QMainWindow):
             logger.warning("filename is None, cannot set zoom")
             return
 
-        if pos is None:
-            pos = QtCore.QPointF(self.canvas.visibleRegion().boundingRect().center())
+        # Get current scroll positions before zoom
+        old_h_scroll = self.scrollBars[QtCore.Qt.Horizontal].value()
+        old_v_scroll = self.scrollBars[QtCore.Qt.Vertical].value()
+        
+        # Get the mouse position in viewport coordinates
+        if pos is not None:
+            # pos is in canvas widget coordinates
+            # Map to viewport to get position relative to visible area
+            viewport_pos = self.scrollArea.viewport().mapFromGlobal(
+                self.canvas.mapToGlobal(pos.toPoint())
+            )
+            focus_x = viewport_pos.x()
+            focus_y = viewport_pos.y()
+        else:
+            # Use center of viewport
+            viewport = self.scrollArea.viewport()
+            focus_x = viewport.width() // 2
+            focus_y = viewport.height() // 2
+        
         canvas_width_old: int = self.canvas.width()
+        canvas_height_old: int = self.canvas.height()
 
         self.actions.fitWidth.setChecked(self._zoom_mode == _ZoomMode.FIT_WIDTH)
         self.actions.fitWindow.setChecked(self._zoom_mode == _ZoomMode.FIT_WINDOW)
@@ -1791,19 +1809,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self._zoom_values[self.filename] = (self._zoom_mode, value)
 
         canvas_width_new: int = self.canvas.width()
+        canvas_height_new: int = self.canvas.height()
         if canvas_width_old == canvas_width_new:
             return
-        canvas_scale_factor = canvas_width_new / canvas_width_old
-        x_shift: float = pos.x() * canvas_scale_factor - pos.x()
-        y_shift: float = pos.y() * canvas_scale_factor - pos.y()
         
-        # Calculate new scroll positions
-        new_h_scroll = self.scrollBars[Qt.Horizontal].value() + x_shift
-        new_v_scroll = self.scrollBars[Qt.Vertical].value() + y_shift
+        # Calculate the scale factor
+        scale_x = canvas_width_new / canvas_width_old
+        scale_y = canvas_height_new / canvas_height_old
         
-        # Clamp to valid range to prevent jumping to center when at edges
-        h_scrollbar = self.scrollBars[Qt.Horizontal]
-        v_scrollbar = self.scrollBars[Qt.Vertical]
+        # The point in the image that was under the mouse before zoom
+        # image_point = viewport_point + scroll
+        image_x = focus_x + old_h_scroll
+        image_y = focus_y + old_v_scroll
+        
+        # After scaling, this point moves to a new position
+        new_image_x = image_x * scale_x
+        new_image_y = image_y * scale_y
+        
+        # To keep this point under the mouse, adjust scroll
+        # new_scroll = new_image_point - viewport_point
+        new_h_scroll = new_image_x - focus_x
+        new_v_scroll = new_image_y - focus_y
+        
+        # Clamp to valid scroll range
+        h_scrollbar = self.scrollBars[QtCore.Qt.Horizontal]
+        v_scrollbar = self.scrollBars[QtCore.Qt.Vertical]
         new_h_scroll = max(h_scrollbar.minimum(), min(h_scrollbar.maximum(), new_h_scroll))
         new_v_scroll = max(v_scrollbar.minimum(), min(v_scrollbar.maximum(), new_v_scroll))
         
