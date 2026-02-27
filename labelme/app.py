@@ -1796,14 +1796,19 @@ class MainWindow(QtWidgets.QMainWindow):
         canvas_scale_factor = canvas_width_new / canvas_width_old
         x_shift: float = pos.x() * canvas_scale_factor - pos.x()
         y_shift: float = pos.y() * canvas_scale_factor - pos.y()
-        self.setScroll(
-            Qt.Horizontal,
-            self.scrollBars[Qt.Horizontal].value() + x_shift,
-        )
-        self.setScroll(
-            Qt.Vertical,
-            self.scrollBars[Qt.Vertical].value() + y_shift,
-        )
+        
+        # Calculate new scroll positions
+        new_h_scroll = self.scrollBars[Qt.Horizontal].value() + x_shift
+        new_v_scroll = self.scrollBars[Qt.Vertical].value() + y_shift
+        
+        # Clamp to valid range to prevent jumping to center when at edges
+        h_scrollbar = self.scrollBars[Qt.Horizontal]
+        v_scrollbar = self.scrollBars[Qt.Vertical]
+        new_h_scroll = max(h_scrollbar.minimum(), min(h_scrollbar.maximum(), new_h_scroll))
+        new_v_scroll = max(v_scrollbar.minimum(), min(v_scrollbar.maximum(), new_v_scroll))
+        
+        self.setScroll(Qt.Horizontal, new_h_scroll)
+        self.setScroll(Qt.Vertical, new_v_scroll)
 
     def _set_zoom_to_original(self):
         self._zoom_mode = _ZoomMode.MANUAL_ZOOM
