@@ -127,19 +127,19 @@ shortcuts:
   fit_width: Ctrl+Shift+F
 
   create_polygon: Ctrl+Shift+C
-  create_rectangle: Ctrl+Shift+X
+  create_rectangle: Ctrl+Shift+B
   create_circle: null
   create_line: null
   create_point: null
   create_linestrip: null
-  edit_polygon: Ctrl+Shift+V
+  edit_polygon: Ctrl+Shift+C
   delete_polygon: Delete
   duplicate_polygon: Ctrl+D
   copy_polygon: Ctrl+C
   paste_polygon: Ctrl+V
   undo: Ctrl+Z
   undo_last_point: Ctrl+Z
-  edit_label: Ctrl+E
+  edit_label: Ctrl+Shift+X
   toggle_keep_prev_mode: Ctrl+P
   remove_selected_point: [Meta+H, Backspace]
   add_multiple_points: Ctrl+M
