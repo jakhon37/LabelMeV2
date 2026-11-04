@@ -9,18 +9,17 @@
   [![Python Version](https://img.shields.io/pypi/pyversions/labelmev2.svg)](https://pypi.org/project/labelmev2/)
   [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
   [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
-  [![Tests](https://img.shields.io/badge/tests-38%20passed-brightgreen.svg)]()
   
-  **Enhanced fork of [wkentaro/labelme](https://github.com/wkentaro/labelme) with 45x faster loading & productivity features**
+  **Enhanced fork of [wkentaro/labelme](https://github.com/wkentaro/labelme) with up to 45x faster loading & productivity features**
 </div>
 
 ---
 
 ## 🎯 What's New in This Fork
 
-This enhanced version adds powerful polygon editing features, **45x faster image loading**, and improved defaults to speed up your annotation workflow:
+This enhanced version adds powerful polygon editing features, **up to 45x faster image loading**, and improved defaults to speed up your annotation workflow:
 
-### ⚡ **Breakthrough Performance: 45x Faster Loading**
+### ⚡ **Faster Loading: Up to 45x on Large Images**
 
 The biggest improvement in this fork - **optimized TIFF/JPG/PNG loading** for massive images:
 
