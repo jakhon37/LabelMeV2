@@ -1,5 +1,7 @@
 # LabelMe V2
 
+> **LabelMeV2 continues as [Seamtag](https://github.com/jakhon37/Seamtag)**, an Electron app with labelme's tools and file format that installs on Windows, macOS and Linux. Its repository carries LabelMeV2's commit history.
+
 <div align="center">
   <img src="labelme/icons/icon-256.png" width="200" height="200">
   
