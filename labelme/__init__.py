@@ -14,6 +14,7 @@ except importlib.metadata.PackageNotFoundError:
     # Development mode - get version from git tags
     try:
         import subprocess
+
         result = subprocess.run(
             ["git", "describe", "--tags", "--abbrev=0"],
             capture_output=True,

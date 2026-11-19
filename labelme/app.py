@@ -212,7 +212,7 @@ class MainWindow(QtWidgets.QMainWindow):
         max_zoom = self._config.get("max_zoom", 5000)
         self.zoomWidget = ZoomWidget(max_zoom=max_zoom)
         self.setAcceptDrops(True)
-        
+
         # Image cache for fast navigation
         self._image_cache = {}
         self._image_cache_order = []
@@ -223,7 +223,9 @@ class MainWindow(QtWidgets.QMainWindow):
             double_click=self._config["canvas"]["double_click"],
             num_backups=self._config["canvas"]["num_backups"],
             crosshair=self._config["canvas"]["crosshair"],
-            enable_viewport_culling=self._config["performance"]["enable_viewport_culling"],
+            enable_viewport_culling=self._config["performance"][
+                "enable_viewport_culling"
+            ],
         )
         self.canvas.zoomRequest.connect(self._zoom_requested)
         self.canvas.mouseMoved.connect(self._update_status_stats)
@@ -1023,7 +1025,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Apply dark mode if enabled in config
         if self._config["dark_mode"]:
-            QtWidgets.QApplication.instance().setStyleSheet(get_dark_stylesheet())
+            self._set_app_stylesheet(get_dark_stylesheet())
+
+    def _set_app_stylesheet(self, stylesheet: str) -> None:
+        app = QtWidgets.QApplication.instance()
+        if isinstance(app, QtWidgets.QApplication):
+            app.setStyleSheet(stylesheet)
 
     def _load_config(
         self, config_file: Path | None, config_overrides: dict | None
@@ -1586,7 +1593,7 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             assert self.imagePath
             imagePath = osp.relpath(self.imagePath, osp.dirname(filename))
-            
+
             # Handle imageData - load if needed for storage
             if self._config["store_data"]:
                 if self.imageData is None:
@@ -1596,7 +1603,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 imageData = self.imageData
             else:
                 imageData = None
-            
+
             if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
                 os.makedirs(osp.dirname(filename))
             lf.save(
@@ -1781,7 +1788,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Get current scroll positions before zoom
         old_h_scroll = self.scrollBars[QtCore.Qt.Horizontal].value()
         old_v_scroll = self.scrollBars[QtCore.Qt.Vertical].value()
-        
+
         # Get the mouse position in viewport coordinates
         if pos is not None:
             # pos is in canvas widget coordinates
@@ -1796,7 +1803,7 @@ class MainWindow(QtWidgets.QMainWindow):
             viewport = self.scrollArea.viewport()
             focus_x = viewport.width() // 2
             focus_y = viewport.height() // 2
-        
+
         canvas_width_old: int = self.canvas.width()
         canvas_height_old: int = self.canvas.height()
 
@@ -1812,31 +1819,35 @@ class MainWindow(QtWidgets.QMainWindow):
         canvas_height_new: int = self.canvas.height()
         if canvas_width_old == canvas_width_new:
             return
-        
+
         # Calculate the scale factor
         scale_x = canvas_width_new / canvas_width_old
         scale_y = canvas_height_new / canvas_height_old
-        
+
         # The point in the image that was under the mouse before zoom
         # image_point = viewport_point + scroll
         image_x = focus_x + old_h_scroll
         image_y = focus_y + old_v_scroll
-        
+
         # After scaling, this point moves to a new position
         new_image_x = image_x * scale_x
         new_image_y = image_y * scale_y
-        
+
         # To keep this point under the mouse, adjust scroll
         # new_scroll = new_image_point - viewport_point
         new_h_scroll = new_image_x - focus_x
         new_v_scroll = new_image_y - focus_y
-        
+
         # Clamp to valid scroll range
         h_scrollbar = self.scrollBars[QtCore.Qt.Horizontal]
         v_scrollbar = self.scrollBars[QtCore.Qt.Vertical]
-        new_h_scroll = max(h_scrollbar.minimum(), min(h_scrollbar.maximum(), new_h_scroll))
-        new_v_scroll = max(v_scrollbar.minimum(), min(v_scrollbar.maximum(), new_v_scroll))
-        
+        new_h_scroll = max(
+            h_scrollbar.minimum(), min(h_scrollbar.maximum(), new_h_scroll)
+        )
+        new_v_scroll = max(
+            v_scrollbar.minimum(), min(v_scrollbar.maximum(), new_v_scroll)
+        )
+
         self.setScroll(Qt.Horizontal, new_h_scroll)
         self.setScroll(Qt.Vertical, new_v_scroll)
 
@@ -1894,12 +1905,12 @@ class MainWindow(QtWidgets.QMainWindow):
             # If no previous values to apply, skip entirely on initial load
             if brightness is None and contrast is None:
                 return
-        
+
         # Load imageData if needed for brightness/contrast
         if self.imageData is None:
             logger.info("Loading image data for brightness/contrast adjustment")
             self.imageData = LabelFile.load_image_file(self.imagePath)
-        
+
         dialog = BrightnessContrastDialog(
             utils.img_data_to_pil(self.imageData).convert("RGB"),
             self.onNewBrightnessContrast,
@@ -1941,7 +1952,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _load_file(self, filename=None):
         """Load the specified file, or the last opened file if None."""
         load_start = time.time()
-        
+
         # changing fileListWidget loads file
         if filename in self.imageList and (
             self.fileListWidget.currentRow() != self.imageList.index(filename)
@@ -1974,11 +1985,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.output_dir:
             label_file_without_path = osp.basename(label_file)
             label_file = osp.join(self.output_dir, label_file_without_path)
-        
+
         t1 = time.time()
         if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(label_file):
             try:
-                self.labelFile = LabelFile(label_file)
+                self.labelFile = LabelFile(label_file, load_image_data=False)
             except LabelFileError as e:
                 self.errorMessage(
                     self.tr("Error opening file"),
@@ -2002,7 +2013,7 @@ class MainWindow(QtWidgets.QMainWindow):
             ext = osp.splitext(filename)[1].lower()
             if ext in [".tif", ".tiff"] and not QtCore.QFile.exists(label_file):
                 # Direct Qt loading for TIFF files (much faster)
-                logger.info(f"Using direct Qt loading for TIFF file")
+                logger.info("Using direct Qt loading for TIFF file")
                 self.imageData = None  # Will load directly below
                 self.imagePath = filename
                 self.labelFile = None
@@ -2012,21 +2023,22 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.imageData:
                     self.imagePath = filename
                 self.labelFile = None
-        
+
         t2 = time.time()
-        logger.info(f"⏱️ Time to load file data: {(t2-t1)*1000:.0f}ms")
-        
+        logger.info(f"⏱️ Time to load file data: {(t2 - t1) * 1000:.0f}ms")
+
         # Check cache first for fast navigation
         cache_key = filename
         if cache_key in self._image_cache:
             logger.info(f"✅ Loading image from cache: {osp.basename(filename)}")
             image = self._image_cache[cache_key]
             t3 = time.time()
-            logger.info(f"⏱️ Cache retrieval: {(t3-t2)*1000:.0f}ms")
+            logger.info(f"⏱️ Cache retrieval: {(t3 - t2) * 1000:.0f}ms")
         else:
             # Fast path for direct file loading (all formats)
             if self.imageData is None:
-                logger.info(f"Loading image directly with QImageReader")
+                assert self.imagePath is not None
+                logger.info("Loading image directly with QImageReader")
                 image = self._load_image_directly_from_file(self.imagePath)
             # Standard path: Use QImageReader for efficient loading from bytes
             elif self._config["performance"]["auto_downsample_large_images"]:
@@ -2034,8 +2046,8 @@ class MainWindow(QtWidgets.QMainWindow):
             else:
                 image = QtGui.QImage.fromData(self.imageData)
             t3 = time.time()
-            logger.info(f"⏱️ Image decode time: {(t3-t2)*1000:.0f}ms")
-            
+            logger.info(f"⏱️ Image decode time: {(t3 - t2) * 1000:.0f}ms")
+
             # Add to cache
             self._add_to_cache(cache_key, image)
 
@@ -2058,16 +2070,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.filename = filename
         self.canvas.loadPixmap(QtGui.QPixmap.fromImage(image))
         t5 = time.time()
-        logger.info(f"⏱️ QPixmap conversion: {(t5-t4)*1000:.0f}ms")
-        
+        logger.info(f"⏱️ QPixmap conversion: {(t5 - t4) * 1000:.0f}ms")
+
         flags = {k: False for k in self._config["flags"] or []}
         if self.labelFile:
             self._load_shape_dicts(shape_dicts=self.labelFile.shapes)
             if self.labelFile.flags is not None:
                 flags.update(self.labelFile.flags)
         t6 = time.time()
-        logger.info(f"⏱️ Load shapes: {(t6-t5)*1000:.0f}ms")
-        
+        logger.info(f"⏱️ Load shapes: {(t6 - t5) * 1000:.0f}ms")
+
         self._load_flags(flags=flags)
         if prev_shapes and self.noShapes():
             self._load_shapes(shapes=prev_shapes, replace=False)
@@ -2090,20 +2102,20 @@ class MainWindow(QtWidgets.QMainWindow):
                     orientation, self.scroll_values[orientation][self.filename]
                 )
         t7 = time.time()
-        logger.info(f"⏱️ UI setup (zoom/scroll): {(t7-t6)*1000:.0f}ms")
-        
+        logger.info(f"⏱️ UI setup (zoom/scroll): {(t7 - t6) * 1000:.0f}ms")
+
         self.brightnessContrast(value=False, is_initial_load=True)
         self._paint_canvas()
         t8 = time.time()
-        logger.info(f"⏱️ Paint canvas: {(t8-t7)*1000:.0f}ms")
-        
+        logger.info(f"⏱️ Paint canvas: {(t8 - t7) * 1000:.0f}ms")
+
         self.addRecentFile(self.filename)
         self.toggleActions(True)
         self.canvas.setFocus()
         self.show_status_message(self.tr("Loaded %s") % osp.basename(filename))
-        
+
         total_time = time.time() - load_start
-        logger.info(f"🎯 TOTAL LOAD TIME: {total_time*1000:.0f}ms")
+        logger.info(f"🎯 TOTAL LOAD TIME: {total_time * 1000:.0f}ms")
         logger.debug("loaded file: {!r}", filename)
         return True
 
@@ -2123,118 +2135,113 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.scale = 0.01 * self.zoomWidget.value()
         self.canvas.adjustSize()
         self.canvas.update()
-    
+
     def _add_to_cache(self, key: str, image: QtGui.QImage) -> None:
         """Add image to cache with LRU eviction"""
         # Remove if already in cache (update position)
         if key in self._image_cache:
             self._image_cache_order.remove(key)
-        
+
         # Add to cache
         self._image_cache[key] = image
         self._image_cache_order.append(key)
-        
+
         # Evict oldest if cache is full
         while len(self._image_cache) > self._max_cache_size:
             oldest = self._image_cache_order.pop(0)
             del self._image_cache[oldest]
             logger.debug(f"Evicted image from cache: {osp.basename(oldest)}")
-    
+
     def _load_image_optimized(self, image_data: bytes) -> QtGui.QImage:
         """Load image with optimization for large files"""
         # First, quickly get dimensions without full decode
         byte_array = QtCore.QByteArray(image_data)
         buffer = QtCore.QBuffer(byte_array)
         buffer.open(QtCore.QIODevice.ReadOnly)
-        
+
         image_reader = QtGui.QImageReader(buffer)
-        
+
         size = image_reader.size()
         if size.width() == 0 or size.height() == 0:
             # Fallback to regular loading
             buffer.close()
             return QtGui.QImage.fromData(image_data)
-        
+
         threshold = self._config["performance"]["downsample_threshold"]
         factor = self._config["performance"]["downsample_factor"]
-        
+
         # Check if downsampling is needed
         if size.width() > threshold or size.height() > threshold:
             # Calculate target size
-            scaled_size = QtCore.QSize(
-                size.width() // factor,
-                size.height() // factor
-            )
-            
+            scaled_size = QtCore.QSize(size.width() // factor, size.height() // factor)
+
             # Set scaled size for efficient loading
             image_reader.setScaledSize(scaled_size)
-            
+
             logger.info(
                 f"Loading large image {size.width()}x{size.height()} "
                 f"directly at {scaled_size.width()}x{scaled_size.height()} "
                 f"(factor={factor}) - much faster!"
             )
-            
+
             # Read at reduced resolution (faster than load-then-scale)
             image = image_reader.read()
             buffer.close()
-            
+
             if not image.isNull():
                 return image
             else:
                 logger.warning(
                     "Optimized loading failed, falling back to standard method"
                 )
-        
+
         buffer.close()
         # Standard loading for normal-sized images or if optimization failed
         return QtGui.QImage.fromData(image_data)
-    
+
     def _load_image_directly_from_file(self, filename: str) -> QtGui.QImage:
-        """Load image directly from file without intermediate conversion (fast path for all formats)"""
+        """Load an image file directly, with no intermediate conversion (fast path)."""
         image_reader = QtGui.QImageReader(filename)
-        
+
         size = image_reader.size()
         if size.width() == 0 or size.height() == 0:
             logger.warning(f"Failed to read image size from {filename}")
             return QtGui.QImage()
-        
+
         threshold = self._config["performance"]["downsample_threshold"]
         factor = self._config["performance"]["downsample_factor"]
-        
+
         # Check if downsampling is needed
-        if self._config["performance"]["auto_downsample_large_images"] and \
-           (size.width() > threshold or size.height() > threshold):
+        if self._config["performance"]["auto_downsample_large_images"] and (
+            size.width() > threshold or size.height() > threshold
+        ):
             # Calculate target size
-            scaled_size = QtCore.QSize(
-                size.width() // factor,
-                size.height() // factor
-            )
-            
+            scaled_size = QtCore.QSize(size.width() // factor, size.height() // factor)
+
             # Set scaled size for efficient loading
             image_reader.setScaledSize(scaled_size)
-            
+
             logger.info(
                 f"Loading image {size.width()}x{size.height()} "
                 f"directly at {scaled_size.width()}x{scaled_size.height()} "
                 f"(factor={factor}) from file!"
             )
-        
+
         # Read the image
         image = image_reader.read()
-        
+
         if image.isNull():
             logger.error(f"Failed to load image from {filename}")
-        
+
         return image
-    
+
     def _downsample_if_needed(self, image: QtGui.QImage) -> QtGui.QImage:
         """Downsample large images for better performance (legacy fallback)"""
         threshold = self._config["performance"]["downsample_threshold"]
         factor = self._config["performance"]["downsample_factor"]
-        
+
         w, h = image.width(), image.height()
-        
+
         if w > threshold or h > threshold:
             new_w = w // factor
             new_h = h // factor
@@ -2243,11 +2250,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 f"for display (factor={factor})"
             )
             return image.scaled(
-                new_w, new_h,
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation
+                new_w, new_h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
             )
-        
+
         return image
 
     def _adjust_scale(self) -> None:
@@ -2554,9 +2559,9 @@ class MainWindow(QtWidgets.QMainWindow):
         """Toggle dark mode on/off."""
         self._config["dark_mode"] = self.actions.toggleDarkMode.isChecked()
         if self._config["dark_mode"]:
-            QtWidgets.QApplication.instance().setStyleSheet(get_dark_stylesheet())
+            self._set_app_stylesheet(get_dark_stylesheet())
         else:
-            QtWidgets.QApplication.instance().setStyleSheet("")
+            self._set_app_stylesheet("")
         self.show_status_message(
             self.tr("Dark mode {}").format(
                 self.tr("enabled") if self._config["dark_mode"] else self.tr("disabled")

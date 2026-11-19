@@ -129,12 +129,12 @@ class LabelFile:
     shapes: list[ShapeDict]
     suffix = ".json"
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, load_image_data=True):
         self.shapes = []
         self.imagePath = None
         self.imageData = None
         if filename is not None:
-            self.load(filename)
+            self.load(filename, load_image_data=load_image_data)
         self.filename = filename
 
     @staticmethod
@@ -158,7 +158,14 @@ class LabelFile:
             f.seek(0)
             return f.read()
 
-    def load(self, filename):
+    def load(self, filename, load_image_data=True):
+        """Load a label file.
+
+        With load_image_data=False, imageData stays None whenever the image file
+        exists on disk, so the app can read the image directly (much faster for
+        large images). Scripts and command-line tools keep the default, which
+        always fills imageData as upstream labelme does.
+        """
         keys = [
             "version",
             "imageData",
@@ -175,28 +182,47 @@ class LabelFile:
             # Normalize Windows-style backslash paths to POSIX forward slashes
             imagePath = PureWindowsPath(data["imagePath"]).as_posix()
 
-            # Performance optimization: Skip loading imageData and load directly from file
+            # Fast path: skip imageData and let the app load the image file directly
             image_file_path = osp.join(osp.dirname(filename), imagePath)
             image_exists = osp.exists(image_file_path)
-            
+
             # Check if imagePath points to an actual image file (not JSON or other)
-            image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff', '.webp', '.gif']
+            image_extensions = [
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".bmp",
+                ".tif",
+                ".tiff",
+                ".webp",
+                ".gif",
+            ]
             ext = osp.splitext(imagePath)[1].lower()
             is_image_file = ext in image_extensions
-            
-            # For all image files that exist on disk, skip loading imageData (major speedup!)
+
+            # Image files on disk skip imageData (a large speedup)
             # Let QImageReader handle all formats efficiently with downsampling
-            if data["imageData"] is not None:
+            if load_image_data:
+                if data["imageData"] is not None:
+                    imageData = base64.b64decode(data["imageData"])
+                elif image_exists:
+                    imageData = self.load_image_file(image_file_path)
+                else:
+                    raise LabelFileError(f"Image file not found: {image_file_path}")
+            elif data["imageData"] is not None:
                 if image_exists and is_image_file:
                     # Image file exists - will be loaded directly later (fast path)
-                    logger.info(f"Skipping embedded imageData from JSON - will load {imagePath} directly")
+                    logger.info(
+                        "Skipping embedded imageData from JSON - "
+                        f"will load {imagePath} directly"
+                    )
                     imageData = None
                 else:
-                    # No file on disk, not an image, or imagePath is invalid - load from JSON
+                    # No usable image file on disk - load from JSON
                     imageData = base64.b64decode(data["imageData"])
                     logger.debug(f"Loaded imageData from JSON ({len(imageData)} bytes)")
             elif image_exists and is_image_file:
-                # No imageData in JSON and it's an image file - use direct file loading (fast path)
+                # No imageData in JSON and an image file on disk - fast path
                 logger.info(f"No imageData in JSON - will load {imagePath} directly")
                 imageData = None
             elif image_exists:
@@ -207,7 +233,7 @@ class LabelFile:
                 # No imageData and file doesn't exist
                 raise LabelFileError(f"Image file not found: {image_file_path}")
             flags = data.get("flags") or {}
-            
+
             # Skip image validation if imageData is None (fast path)
             if imageData is not None:
                 self._check_image_height_and_width(
@@ -215,7 +241,7 @@ class LabelFile:
                     data.get("imageHeight"),
                     data.get("imageWidth"),
                 )
-            
+
             shapes: list[ShapeDict] = [
                 _load_shape_json_obj(shape_json_obj=s) for s in data["shapes"]
             ]

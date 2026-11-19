@@ -110,7 +110,7 @@ class Canvas(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
 
         self.resetState()
-        
+
         # Performance optimization: viewport culling
         self._viewport_bounds = None
 
@@ -246,38 +246,41 @@ class Canvas(QtWidgets.QWidget):
         # First check manual visibility toggle
         if not self.visible.get(shape, True):
             return False
-        
+
         # Viewport culling for performance with many polygons
-        if self._enable_viewport_culling and self._viewport_bounds:
+        bounds = self._viewport_bounds
+        if self._enable_viewport_culling and bounds is not None and not bounds.isNull():
             # Quick bounding box test
             bbox = shape.boundingRect()
-            vp = self._viewport_bounds
-            
+            vp = bounds
+
             # If shape bbox is completely outside viewport, skip it
-            if (bbox.right() < vp.left() or 
-                bbox.left() > vp.right() or
-                bbox.bottom() < vp.top() or
-                bbox.top() > vp.bottom()):
+            if (
+                bbox.right() < vp.left()
+                or bbox.left() > vp.right()
+                or bbox.bottom() < vp.top()
+                or bbox.top() > vp.bottom()
+            ):
                 return False
-        
+
         return True
-    
+
     def _update_viewport_bounds(self):
         """Calculate current viewport bounds in image coordinates"""
         if not self.pixmap:
             return
-        
+
         # Get viewport size in widget coordinates
         viewport_width = self.width()
         viewport_height = self.height()
-        
+
         # Transform to image coordinates
         center = self.offsetToCenter()
         left = -center.x()
         top = -center.y()
         right = left + (viewport_width / self.scale)
         bottom = top + (viewport_height / self.scale)
-        
+
         # Store as QRectF for easy intersection testing
         self._viewport_bounds = QtCore.QRectF(left, top, right - left, bottom - top)
 
