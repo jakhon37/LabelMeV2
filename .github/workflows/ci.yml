@@ -128,7 +128,7 @@ jobs:
       shell: bash
       run: |
         uv build
-        uv pip install dist/labelme-*.whl
+        uv pip install dist/labelmev2-*.whl
     
     - name: Upload wheel artifact
       uses: actions/upload-artifact@v4
